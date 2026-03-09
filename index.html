@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Auto Forge</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --header-bg: #2F3846;
+    --accent-blue: #2B69E6;
+    --accent-red: #F1365D;
+    --accent-green: #10B981;
+    --bg-light: #F1F5F9;
+    --card-bg: #FFFFFF;
+    --text-primary: #1E293B;
+    --text-secondary: #94A3B8;
+    --border: #E2E8F0;
+    --core1: #10B981;
+    --core2: #2B69E6;
+    --core3: #F59E0B;
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #1A202C;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+  }
+
+  .phone-frame {
+    width: 390px;
+    min-height: 100vh;
+    background: var(--bg-light);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  /* ========== TOP TABS ========== */
+  .top-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 16px 16px 12px;
+    background: var(--header-bg);
+  }
+  .top-tab {
+    flex: 1;
+    padding: 10px 6px;
+    border-radius: 8px;
+    border: 2px solid rgba(255,255,255,0.15);
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+  }
+  .top-tab.active {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(43,105,230,0.4);
+  }
+
+  /* ========== PANEL HEADER ========== */
+  .panel-header {
+    background: var(--header-bg);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 16px 12px 0;
+    border-radius: 12px 12px 0 0;
+  }
+  .panel-title {
+    font-weight: 900;
+    font-size: 18px;
+    color: #FFFFFF;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .close-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    background: var(--accent-red);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 20px;
+    font-weight: 900;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(241,54,93,0.4);
+  }
+
+  /* ========== PANEL BODY ========== */
+  .panel-body {
+    background: var(--card-bg);
+    margin: 0 12px;
+    padding: 16px;
+    border-radius: 0 0 12px 12px;
+    border: 1px solid var(--border);
+    border-top: none;
+    box-shadow: var(--shadow-md);
+  }
+
+  .section-label {
+    font-weight: 900;
+    font-size: 13px;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  /* ========== KEEP SECTION ========== */
+  /* Single column: checkbox | colored row with rarity name | % value */
+  .keep-rows-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .keep-row {
+    display: grid;
+    grid-template-columns: 28px 1fr auto;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+
+  .keep-checkbox {
+    width: 22px;
+    height: 22px;
+    appearance: none;
+    border: 2px solid var(--border);
+    border-radius: 5px;
+    cursor: pointer;
+    position: relative;
+    background: #fff;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    margin-left: 2px;
+  }
+  .keep-checkbox:checked {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+  }
+  .keep-checkbox:checked::after {
+    content: '✓';
+    color: #fff;
+    font-size: 13px;
+    font-weight: 900;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .keep-row-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 12px;
+    border-radius: 6px;
+    min-height: 38px;
+    transition: background-color 0.3s;
+  }
+
+  .rarity-label {
+    font-weight: 800;
+    font-size: 13px;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  }
+
+  .threshold-display {
+    font-weight: 900;
+    font-size: 13px;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    min-width: 60px;
+    text-align: right;
+    transition: opacity 0.2s;
+  }
+
+  /* Rarity row colors matching Forge Upgrade screenshot */
+  .rarity-common .keep-row-body     { background: #9CA3AF; }
+  .rarity-uncommon .keep-row-body   { background: #34D399; }
+  .rarity-rare .keep-row-body       { background: #38BDF8; }
+  .rarity-epic .keep-row-body       { background: #A78BFA; }
+  .rarity-legendary .keep-row-body  { background: #FBBF24; }
+  .rarity-mythic .keep-row-body     { background: #F472B6; }
+  .rarity-obsidian .keep-row-body   { background: #78716C; }
+  .rarity-immortal .keep-row-body   { background: #FB923C; }
+  .rarity-diamond .keep-row-body    { background: #67E8F9; }
+  .rarity-emerald .keep-row-body    { background: #4ADE80; }
+  .rarity-ethernal .keep-row-body   { background: #E2E8F0; }
+  .rarity-ethernal .rarity-label,
+  .rarity-ethernal .threshold-display { color: var(--text-primary); text-shadow: none; }
+
+  /* Ripple animation */
+  @keyframes ripple-in {
+    0%   { opacity: 0; transform: translateX(20px); }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+  .keep-row.animating {
+    animation: ripple-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    opacity: 0;
+  }
+
+  /* ========== NUMBER OF CORES / CORE SELECT ========== */
+  .cores-section { margin-top: 18px; }
+
+  .cores-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .cores-label {
+    font-weight: 800;
+    font-size: 12px;
+    color: var(--text-primary);
+    line-height: 1.3;
+  }
+
+  /* Custom qty dropdown */
+  .qty-dropdown-wrap { position: relative; flex-shrink: 0; }
+  .qty-dropdown-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: 14px;
+    color: var(--text-primary);
+    cursor: pointer;
+    min-width: 60px;
+    justify-content: space-between;
+    transition: border-color 0.15s;
+  }
+  .qty-dropdown-btn:hover { border-color: var(--accent-blue); }
+
+  .qty-dropdown-list {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    min-width: 180px;
+    background: var(--header-bg);
+    border-radius: 10px;
+    padding: 4px;
+    z-index: 50;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  }
+  .qty-dropdown-list.open { display: block; }
+
+  .qty-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .qty-option:hover { background: rgba(255,255,255,0.08); }
+  .qty-option.selected { background: var(--accent-blue); }
+  .qty-option.selected .qty-val { color: #fff; }
+  .qty-option.selected .qty-unlock { color: rgba(255,255,255,0.7); }
+  .qty-val {
+    font-weight: 900;
+    font-size: 13px;
+    color: #E2E8F0;
+    min-width: 28px;
+  }
+  .qty-unlock {
+    font-weight: 600;
+    font-size: 10px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    flex: 1;
+  }
+  .qty-lock { flex-shrink: 0; }
+  .qty-option.locked { opacity: 0.5; cursor: not-allowed; }
+  .qty-option.locked:hover { background: transparent; }
+
+  /* Core buttons */
+  .core-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .core-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 4px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+  .core-btn.selected {
+    border-color: var(--accent-blue);
+    background: rgba(43,105,230,0.05);
+  }
+  .core-btn-icon { width: 22px; height: 22px; flex-shrink: 0; }
+  .core-btn-label {
+    font-weight: 800;
+    font-size: 11px;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .core-btn-count {
+    font-weight: 600;
+    font-size: 10px;
+    color: var(--text-secondary);
+  }
+
+  /* ========== FILTERS ========== */
+  .filters-section { margin-top: 18px; }
+
+  .filters-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .toggle-track {
+    width: 44px;
+    height: 24px;
+    border-radius: 12px;
+    background: var(--border);
+    cursor: pointer;
+    position: relative;
+    transition: background 0.25s;
+    flex-shrink: 0;
+  }
+  .toggle-track.on { background: var(--accent-green); }
+  .toggle-track.disabled { pointer-events: none; }
+  .toggle-knob {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.25s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  .toggle-track.on .toggle-knob { transform: translateX(20px); }
+
+  .filter-box {
+    background: var(--bg-light);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    overflow: hidden;
+    /* Animated show/hide */
+    max-height: 200px;
+    opacity: 1;
+    transition: max-height 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.25s ease,
+                padding 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                margin 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .filter-box.hidden {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: 0;
+    border-color: transparent;
+  }
+
+  .filter-desc {
+    font-weight: 700;
+    font-size: 11px;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+  }
+
+  .filter-condition {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .filter-condition:last-child { margin-bottom: 0; }
+
+  .filter-or-divider {
+    text-align: center;
+    font-weight: 900;
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    position: relative;
+  }
+  .filter-or-divider::before,
+  .filter-or-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    height: 1px;
+    width: calc(50% - 24px);
+    background: var(--border);
+  }
+  .filter-or-divider::before { left: 0; }
+  .filter-or-divider::after { right: 0; }
+
+  .filter-select {
+    flex: 1;
+    min-width: 0;
+    padding: 7px 22px 7px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    color: var(--text-primary);
+    background: #fff;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394A3B8'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+  }
+
+  .filter-ampersand {
+    font-weight: 900;
+    font-size: 13px;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+  }
+
+  /* ========== CHARM SLOT ========== */
+  .charm-slot {
+    margin-top: 16px;
+    background: var(--bg-light);
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .charm-slot:hover {
+    border-color: var(--accent-blue);
+    background: rgba(43,105,230,0.03);
+  }
+  .charm-slot.has-charm {
+    border-style: solid;
+    border-color: var(--accent-blue);
+    background: rgba(43,105,230,0.04);
+  }
+  .charm-diamond { width: 50px; height: 50px; flex-shrink: 0; }
+  .charm-diamond svg { width: 50px; height: 50px; }
+  .charm-text {
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .charm-slot.has-charm .charm-text { color: var(--text-primary); }
+  .charm-detail {
+    font-weight: 600;
+    font-size: 10px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-top: 3px;
+  }
+
+  /* ========== OPTIONS ========== */
+  .options {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .option-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+  }
+  .option-checkbox {
+    width: 20px;
+    height: 20px;
+    appearance: none;
+    border: 2px solid var(--border);
+    border-radius: 5px;
+    cursor: pointer;
+    position: relative;
+    background: #fff;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all 0.15s;
+  }
+  .option-checkbox:checked {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+  }
+  .option-checkbox:checked::after {
+    content: '✓';
+    color: #fff;
+    font-size: 12px;
+    font-weight: 900;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .option-label {
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
+
+  /* ========== START BUTTON ========== */
+  .start-btn {
+    margin-top: 18px;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background: var(--header-bg);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: var(--shadow-md);
+  }
+  .start-btn:hover { background: #3A4556; }
+  .start-btn:active { transform: scale(0.97); }
+  .start-btn.running {
+    background: var(--accent-red);
+    box-shadow: 0 4px 12px rgba(241,54,93,0.35);
+  }
+
+  /* ========== CHARM MODAL ========== */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--card-bg);
+    border-radius: 16px;
+    width: 340px;
+    max-height: 400px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  }
+  .modal-head {
+    background: var(--header-bg);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal-head h3 {
+    color: #fff;
+    font-weight: 900;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .modal-close {
+    background: var(--accent-red);
+    border: none;
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 900;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-list {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .charm-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--bg-light);
+  }
+  .charm-option:hover {
+    border-color: var(--accent-blue);
+    background: rgba(43,105,230,0.04);
+  }
+  .charm-option-icon { width: 32px; height: 32px; flex-shrink: 0; }
+  .charm-option-name {
+    font-weight: 800;
+    font-size: 12px;
+    color: var(--text-primary);
+    text-transform: uppercase;
+  }
+  .charm-option-desc {
+    font-weight: 600;
+    font-size: 10px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(43,105,230,0.3); }
+    50% { box-shadow: 0 0 16px 4px rgba(43,105,230,0.3); }
+  }
+  .forging .panel-header { animation: pulse-glow 1.5s ease-in-out infinite; }
+
+  .bottom-pad { height: 24px; }
+
+  @media (max-width: 420px) {
+    .phone-frame { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="phone-frame" id="app">
+
+
+  <div class="panel-header" id="panelHeader">
+    <span class="panel-title">Auto Forge</span>
+    <button class="close-btn" onclick="closePanel()">✕</button>
+  </div>
+
+  <div class="panel-body">
+
+    <!-- ===== KEEP SECTION ===== -->
+    <div class="section-label">Keep</div>
+    <div class="keep-rows-container" id="keepRows">
+      <!-- Rows dynamically generated by JS based on selected core -->
+    </div>
+
+    <!-- ===== NUMBER OF CORES + CORE SELECT (moved BEFORE filters) ===== -->
+    <div class="cores-section">
+      <div class="cores-top-row">
+        <span class="cores-label">Number of cores used at once</span>
+        <div class="qty-dropdown-wrap" id="qtyDropdownWrap">
+          <button class="qty-dropdown-btn" id="qtyBtn" onclick="toggleQtyDropdown()">
+            <span id="qtyBtnValue">1</span>
+            <svg width="10" height="6" viewBox="0 0 10 6"><path d="M0 0l5 6 5-6z" fill="#94A3B8"/></svg>
+          </button>
+          <div class="qty-dropdown-list" id="qtyList">
+            <div class="qty-option selected" onclick="pickQty(this, 1, true)">
+              <span class="qty-val">1</span>
+            </div>
+            <div class="qty-option" onclick="pickQty(this, 5, true)">
+              <span class="qty-val">5</span>
+              <span class="qty-unlock">Stage 3-10</span>
+            </div>
+            <div class="qty-option locked" onclick="pickQty(this, 10, false)">
+              <span class="qty-val">10</span>
+              <span class="qty-unlock">Stage 5-15</span>
+              <svg class="qty-lock" viewBox="0 0 16 16" width="14" height="14"><rect x="3" y="7" width="10" height="7" rx="1.5" fill="#94A3B8"/><path d="M5 7V5a3 3 0 0 1 6 0v2" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div class="qty-option locked" onclick="pickQty(this, 25, false)">
+              <span class="qty-val">25</span>
+              <span class="qty-unlock">Stage 7-15</span>
+              <svg class="qty-lock" viewBox="0 0 16 16" width="14" height="14"><rect x="3" y="7" width="10" height="7" rx="1.5" fill="#94A3B8"/><path d="M5 7V5a3 3 0 0 1 6 0v2" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div class="qty-option locked" onclick="pickQty(this, 50, false)">
+              <span class="qty-val">50</span>
+              <span class="qty-unlock">Stage 10-20</span>
+              <svg class="qty-lock" viewBox="0 0 16 16" width="14" height="14"><rect x="3" y="7" width="10" height="7" rx="1.5" fill="#94A3B8"/><path d="M5 7V5a3 3 0 0 1 6 0v2" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div class="qty-option locked" onclick="pickQty(this, 100, false)">
+              <span class="qty-val">100</span>
+              <span class="qty-unlock">Stage 15-1</span>
+              <svg class="qty-lock" viewBox="0 0 16 16" width="14" height="14"><rect x="3" y="7" width="10" height="7" rx="1.5" fill="#94A3B8"/><path d="M5 7V5a3 3 0 0 1 6 0v2" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="core-buttons">
+        <button class="core-btn selected" id="coreBtn1" onclick="selectCore(this, 1)">
+          <svg class="core-btn-icon" viewBox="0 0 24 24"><polygon points="12,3 20,9.5 17,18.5 7,18.5 4,9.5" fill="var(--core1)" stroke="#065F46" stroke-width="1.5"/></svg>
+          <div class="core-btn-label">Core 1</div>
+          <div class="core-btn-count">12,450</div>
+        </button>
+        <button class="core-btn" id="coreBtn2" onclick="selectCore(this, 2)">
+          <svg class="core-btn-icon" viewBox="0 0 24 24"><polygon points="12,3 20,9.5 17,18.5 7,18.5 4,9.5" fill="var(--core2)" stroke="#1E40AF" stroke-width="1.5"/></svg>
+          <div class="core-btn-label">Core 2</div>
+          <div class="core-btn-count">3,200</div>
+        </button>
+        <button class="core-btn" id="coreBtn3" onclick="selectCore(this, 3)">
+          <svg class="core-btn-icon" viewBox="0 0 24 24"><polygon points="12,3 20,9.5 17,18.5 7,18.5 4,9.5" fill="var(--core3)" stroke="#B45309" stroke-width="1.5"/></svg>
+          <div class="core-btn-label">Core 3</div>
+          <div class="core-btn-count">890</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== FILTERS (moved AFTER cores) ===== -->
+    <div class="filters-section">
+      <div class="filters-header">
+        <span class="section-label" style="margin-bottom:0;">Filters</span>
+        <div class="toggle-track on" id="filterToggle" onclick="toggleFilter()">
+          <div class="toggle-knob"></div>
+        </div>
+      </div>
+
+      <div class="filter-box" id="filterBox">
+        <div class="filter-desc">Only gear with both stats is kept</div>
+        <div class="filter-condition">
+          <select class="filter-select">
+            <option selected>ANY</option><option>HP</option><option>ATK</option><option>DEF</option><option>SPD</option><option>Crit Chance</option><option>Crit DMG</option><option>Counter Chance</option><option>CDR</option><option>Damage Reduction</option><option>Dodge Chance</option><option>Regen</option><option>Stun Chance</option><option>Burn Chance</option><option>Freeze Chance</option><option>Poison Chance</option><option>Pet Crit Chance</option><option>Pet Crit DMG</option><option>Skill Damage Bonus</option><option>Skill Crit Chance</option><option>Skill Crit DMG</option>
+          </select>
+          <span class="filter-ampersand">&</span>
+          <select class="filter-select">
+            <option selected>ANY</option><option>HP</option><option>ATK</option><option>DEF</option><option>SPD</option><option>Crit Chance</option><option>Crit DMG</option><option>Counter Chance</option><option>CDR</option><option>Damage Reduction</option><option>Dodge Chance</option><option>Regen</option><option>Stun Chance</option><option>Burn Chance</option><option>Freeze Chance</option><option>Poison Chance</option><option>Pet Crit Chance</option><option>Pet Crit DMG</option><option>Skill Damage Bonus</option><option>Skill Crit Chance</option><option>Skill Crit DMG</option>
+          </select>
+        </div>
+        <div class="filter-or-divider">OR</div>
+        <div class="filter-condition">
+          <select class="filter-select">
+            <option selected>ANY</option><option>HP</option><option>ATK</option><option>DEF</option><option>SPD</option><option>Crit Chance</option><option>Crit DMG</option><option>Counter Chance</option><option>CDR</option><option>Damage Reduction</option><option>Dodge Chance</option><option>Regen</option><option>Stun Chance</option><option>Burn Chance</option><option>Freeze Chance</option><option>Poison Chance</option><option>Pet Crit Chance</option><option>Pet Crit DMG</option><option>Skill Damage Bonus</option><option>Skill Crit Chance</option><option>Skill Crit DMG</option>
+          </select>
+          <span class="filter-ampersand">&</span>
+          <select class="filter-select">
+            <option selected>ANY</option><option>HP</option><option>ATK</option><option>DEF</option><option>SPD</option><option>Crit Chance</option><option>Crit DMG</option><option>Counter Chance</option><option>CDR</option><option>Damage Reduction</option><option>Dodge Chance</option><option>Regen</option><option>Stun Chance</option><option>Burn Chance</option><option>Freeze Chance</option><option>Poison Chance</option><option>Pet Crit Chance</option><option>Pet Crit DMG</option><option>Skill Damage Bonus</option><option>Skill Crit Chance</option><option>Skill Crit DMG</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CHARM ===== -->
+    <div class="charm-slot" id="charmSlot" onclick="openCharmPicker()">
+      <div class="charm-diamond">
+        <svg viewBox="0 0 50 50" id="charmIcon">
+          <rect x="12" y="12" width="26" height="26" rx="3" transform="rotate(45 25 25)" fill="none" stroke="var(--border)" stroke-width="2.5" stroke-dasharray="4 3"/>
+        </svg>
+      </div>
+      <div>
+        <div class="charm-text" id="charmLabel">No Charm Selected</div>
+        <div class="charm-detail" id="charmDetail">Tap to select a charm</div>
+      </div>
+    </div>
+
+    <!-- ===== OPTIONS ===== -->
+    <div class="options">
+      <label class="option-row">
+        <input type="checkbox" class="option-checkbox">
+        <span class="option-label">Auto save items to inventory</span>
+      </label>
+      <label class="option-row">
+        <input type="checkbox" class="option-checkbox">
+        <span class="option-label">Keep Auto-Forge when selected Charm runs out</span>
+      </label>
+    </div>
+
+    <button class="start-btn" id="startBtn" onclick="toggleForge()">Start</button>
+  </div>
+
+  <div class="bottom-pad"></div>
+</div>
+
+<!-- CHARM MODAL -->
+<div class="modal-overlay" id="charmModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Select Charm</h3>
+      <button class="modal-close" onclick="closeCharmPicker()">✕</button>
+    </div>
+    <div class="modal-list">
+      <div class="charm-option" onclick="pickCharm('Forge Hammer', '+12% Forge Speed', '#F59E0B')">
+        <svg class="charm-option-icon" viewBox="0 0 36 36"><rect x="6" y="6" width="24" height="24" rx="3" transform="rotate(45 18 18)" fill="#F59E0B" stroke="#B45309" stroke-width="1.5"/></svg>
+        <div><div class="charm-option-name">Forge Hammer</div><div class="charm-option-desc">+12% Forge Speed</div></div>
+      </div>
+      <div class="charm-option" onclick="pickCharm('Lucky Anvil', '+8% Rare Drop Rate', '#8B5CF6')">
+        <svg class="charm-option-icon" viewBox="0 0 36 36"><rect x="6" y="6" width="24" height="24" rx="3" transform="rotate(45 18 18)" fill="#8B5CF6" stroke="#6D28D9" stroke-width="1.5"/></svg>
+        <div><div class="charm-option-name">Lucky Anvil</div><div class="charm-option-desc">+8% Rare Drop Rate</div></div>
+      </div>
+      <div class="charm-option" onclick="pickCharm('Crystal Core', '+5% All Stats', '#10B981')">
+        <svg class="charm-option-icon" viewBox="0 0 36 36"><rect x="6" y="6" width="24" height="24" rx="3" transform="rotate(45 18 18)" fill="#10B981" stroke="#065F46" stroke-width="1.5"/></svg>
+        <div><div class="charm-option-name">Crystal Core</div><div class="charm-option-desc">+5% All Stats</div></div>
+      </div>
+      <div class="charm-option" onclick="pickCharm('None', '', '')">
+        <svg class="charm-option-icon" viewBox="0 0 36 36"><rect x="6" y="6" width="24" height="24" rx="3" transform="rotate(45 18 18)" fill="none" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="3 2"/></svg>
+        <div><div class="charm-option-name">Remove Charm</div><div class="charm-option-desc">Clear selection</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===== CORE DATA =====
+  // Each core defines which rarities are available and their keep thresholds
+  const coreData = {
+    1: {
+      rows: [
+        { name: 'Common',    css: 'common',    pct: '40%' },
+        { name: 'Uncommon',  css: 'uncommon',  pct: '30%' },
+        { name: 'Rare',      css: 'rare',      pct: '20%' },
+        { name: 'Epic',      css: 'epic',      pct: '10%' },
+      ]
+    },
+    2: {
+      rows: [
+        { name: 'Uncommon',  css: 'uncommon',  pct: '35%' },
+        { name: 'Rare',      css: 'rare',      pct: '30%' },
+        { name: 'Epic',      css: 'epic',      pct: '20%' },
+        { name: 'Legendary', css: 'legendary', pct: '12%' },
+        { name: 'Mythic',    css: 'mythic',    pct: '3%' },
+      ]
+    },
+    3: {
+      rows: [
+        { name: 'Rare',      css: 'rare',      pct: '30%' },
+        { name: 'Epic',      css: 'epic',      pct: '28%' },
+        { name: 'Legendary', css: 'legendary', pct: '22%' },
+        { name: 'Mythic',    css: 'mythic',    pct: '12%' },
+        { name: 'Obsidian',  css: 'obsidian',  pct: '6%' },
+        { name: 'Immortal',  css: 'immortal',  pct: '2%' },
+      ]
+    }
+  };
+
+  let currentCore = 1;
+  // Track which rows user has checked (by rarity css name)
+  const checkedState = {};
+
+  function renderKeepRows(coreId, animate) {
+    const container = document.getElementById('keepRows');
+    const allRows = coreData[coreId].rows;
+    // Only show the 4 highest rarities (last 4 in the array)
+    const rows = allRows.slice(-4);
+    container.innerHTML = '';
+
+    rows.forEach((row, i) => {
+      const div = document.createElement('div');
+      div.className = `keep-row rarity-${row.css}`;
+      if (animate) {
+        div.classList.add('animating');
+        div.style.animationDelay = `${i * 0.07}s`;
+      }
+
+      const isChecked = checkedState[row.css] !== undefined ? checkedState[row.css] : (row.pct !== '—' && row.pct !== '0%');
+
+      div.innerHTML = `
+        <input type="checkbox" class="keep-checkbox" ${isChecked ? 'checked' : ''} onchange="onKeepCheck('${row.css}', this.checked)">
+        <div class="keep-row-body">
+          <span class="rarity-label">${row.name}</span>
+          <span class="threshold-display">${row.pct}</span>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function onKeepCheck(cssName, checked) {
+    checkedState[cssName] = checked;
+  }
+
+  // ===== CORE SELECTION =====
+  function selectCore(el, coreId) {
+    if (coreId === currentCore) return;
+    document.querySelectorAll('.core-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    currentCore = coreId;
+    renderKeepRows(coreId, true);
+  }
+
+  // ===== TAB SWITCHING =====
+  function setTab(el) {
+    document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // ===== FILTER TOGGLE (debounced) =====
+  let filterAnimating = false;
+  function toggleFilter() {
+    if (filterAnimating) return; // prevent spam
+    filterAnimating = true;
+
+    const t = document.getElementById('filterToggle');
+    const b = document.getElementById('filterBox');
+    t.classList.toggle('on');
+    t.classList.add('disabled');
+
+    if (t.classList.contains('on')) {
+      b.classList.remove('hidden');
+    } else {
+      b.classList.add('hidden');
+    }
+
+    // Re-enable after animation completes
+    setTimeout(() => {
+      filterAnimating = false;
+      t.classList.remove('disabled');
+    }, 380);
+  }
+
+  // ===== QTY DROPDOWN =====
+  function toggleQtyDropdown() {
+    document.getElementById('qtyList').classList.toggle('open');
+  }
+  function pickQty(el, val, unlocked) {
+    if (!unlocked) return;
+    document.querySelectorAll('.qty-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('qtyBtnValue').textContent = val;
+    document.getElementById('qtyList').classList.remove('open');
+  }
+  document.addEventListener('click', function(e) {
+    const wrap = document.getElementById('qtyDropdownWrap');
+    if (wrap && !wrap.contains(e.target)) {
+      document.getElementById('qtyList').classList.remove('open');
+    }
+  });
+
+  // ===== CHARM =====
+  function openCharmPicker() { document.getElementById('charmModal').classList.add('show'); }
+  function closeCharmPicker() { document.getElementById('charmModal').classList.remove('show'); }
+
+  function pickCharm(name, desc, color) {
+    const slot = document.getElementById('charmSlot');
+    const label = document.getElementById('charmLabel');
+    const detail = document.getElementById('charmDetail');
+    const icon = document.getElementById('charmIcon');
+
+    if (name === 'None') {
+      slot.classList.remove('has-charm');
+      label.textContent = 'No Charm Selected';
+      detail.textContent = 'Tap to select a charm';
+      icon.innerHTML = '<rect x="12" y="12" width="26" height="26" rx="3" transform="rotate(45 25 25)" fill="none" stroke="var(--border)" stroke-width="2.5" stroke-dasharray="4 3"/>';
+    } else {
+      slot.classList.add('has-charm');
+      label.textContent = name;
+      detail.textContent = desc;
+      icon.innerHTML = `<rect x="12" y="12" width="26" height="26" rx="3" transform="rotate(45 25 25)" fill="${color}" stroke="${color}" stroke-width="2.5"/>`;
+    }
+    closeCharmPicker();
+  }
+
+  // ===== START / STOP =====
+  let forging = false;
+  function toggleForge() {
+    forging = !forging;
+    const btn = document.getElementById('startBtn');
+    const app = document.getElementById('app');
+    if (forging) {
+      btn.textContent = 'Stop';
+      btn.classList.add('running');
+      app.classList.add('forging');
+    } else {
+      btn.textContent = 'Start';
+      btn.classList.remove('running');
+      app.classList.remove('forging');
+    }
+  }
+
+  function closePanel() {
+    if (forging) toggleForge();
+    document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.top-tab')[0].classList.add('active');
+  }
+
+  // ===== INIT =====
+  renderKeepRows(1, false);
+</script>
+</body>
+</html>
